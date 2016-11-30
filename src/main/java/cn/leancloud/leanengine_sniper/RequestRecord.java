@@ -31,7 +31,7 @@ class RequestRecord {
   }
 
   public RequestRecord(String path, String method, RequestType type) {
-    startedAt = System.currentTimeMillis();
+    startedAt = System.nanoTime();
     this.method = method;
     this.path = path;
     this.type = type;
@@ -43,17 +43,16 @@ class RequestRecord {
   }
 
   public void end(int statusCode) {
-    endedAt = System.currentTimeMillis();
+    endedAt = System.nanoTime();
     this.statusCode = statusCode;
   }
 
-  public long getResponseTime() {
-    return endedAt - startedAt;
+  public double getResponseTime() {
+    return (endedAt - startedAt) / 1000000.0;
   }
 
   public RequestMetricItem metric() {
     RequestMetricItem item = new RequestMetricItem();
-    item.setCount(1);
     item.setResponseTime(getResponseTime());
     item.setStatusCode(statusCode);
     item.setMethod(method);

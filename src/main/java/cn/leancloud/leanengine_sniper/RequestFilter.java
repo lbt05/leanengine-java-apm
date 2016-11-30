@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.leancloud.leanengine_sniper.RequestRecord.RequestType;
 
-@WebFilter(filterName = "requestUserAuthFilter", urlPatterns = {"/*"})
+@WebFilter(filterName = "apmRequestFilter", urlPatterns = {"/*"})
 public class RequestFilter implements Filter {
 
   public void init(FilterConfig filterConfig) throws ServletException {

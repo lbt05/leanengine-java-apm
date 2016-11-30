@@ -55,6 +55,13 @@ public class AppTest extends TestCase {
     record.end(200);
     item = record.metric();
     assertEquals(item.method + " " + "/1.1/classes/_User/:id", item.getUrl());
+
+    RequestRecord record1 =
+        new RequestRecord("/1.1/classes/_User/123", "POST", RequestType.CLOUDAPI);
+    record1.end(200);
+    RequestMetricItem item1 = record1.metric();
+    item1.addRequestMetric(item);
+    System.out.println(item1.getResponseTime());
   }
 
   public void testRequest() {

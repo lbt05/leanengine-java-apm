@@ -48,7 +48,8 @@ public class FunctionRequestTest extends TestCase {
     LeanEngine.addSessionCookie(new EngineSessionCookie(secret, 160000, true));
     LeanEngine.register(AllEngineFunctions.class);
     AVOSCloud.setDebugLogEnabled(true);
-    APM.init("5d624dbb0fb4c886b731d21d95e69d116b5f7870", 10);
+    APM.init("5d624dbb0fb4c886b731d21d95e69d116b5f7870");
+    APM.setInterval(10);
 
     server = new Server(port);
     ServletHandler handler = new ServletHandler();
@@ -56,6 +57,7 @@ public class FunctionRequestTest extends TestCase {
     handler.addServletWithMapping(LeanEngineHealthCheckServlet.class, "/__engine/1/ping");
     handler.addServletWithMapping(CloudCodeServlet.class, "/1.1/functions/*");
     handler.addServletWithMapping(CloudCodeServlet.class, "/1.1/call/*");
+    handler.addServletWithMapping(CustomServlet.class, "/tags/*");
 
     handler.addFilterWithMapping(HttpsRequestRedirectFilter.class, "/*",
         EnumSet.of(DispatcherType.INCLUDE, DispatcherType.REQUEST));
@@ -161,5 +163,13 @@ public class FunctionRequestTest extends TestCase {
     for (AVUser u : userResults) {
       assertNotNull(u.getUsername());
     }
+  }
+
+  public void testCustomServlet() throws Exception {
+    Request.Builder builder = new Request.Builder();
+    builder.url("http://localhost:3000/tags/data");
+    builder.get();
+    OkHttpClient client = new OkHttpClient();
+    Response response = client.newCall(builder.build()).execute();
   }
 }

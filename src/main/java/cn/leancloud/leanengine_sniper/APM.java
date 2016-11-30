@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -24,10 +25,22 @@ public class APM {
 
   private static final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
   private final static LeanCloudInterceptor leanCloudInterceptor = new LeanCloudInterceptor();
+  private final static Runnable reportTask = new Runnable() {
 
-  public static void init(String token, long intervalInSecs) {
+    public void run() {
+      process();
+    }
+  };
+
+  private static ScheduledFuture<?> reportTaskFuture;
+
+  /**
+   * 请在LeanEngine.init之后进行调用
+   * 
+   * @param token 每个应用所对应的 apm token
+   */
+  public static void init(String token) {
     APM.token = token;
-    interval = intervalInSecs * 1000;
     List<Interceptor> interceptors =
         InternalConfigurationController.globalInstance().getClientConfiguration()
             .getClientInterceptors();
@@ -35,16 +48,29 @@ public class APM {
     if (interceptors != null && !interceptors.contains(leanCloudInterceptor)) {
       interceptors.add(leanCloudInterceptor);
     }
-    executor.scheduleAtFixedRate(new Runnable() {
+    scheduleReportTask();
+  }
 
-      public void run() {
-        process();
-      }
-    }, interval, interval, TimeUnit.MILLISECONDS);
+  private static void scheduleReportTask() {
+    if (reportTaskFuture != null) {
+      reportTaskFuture.cancel(false);
+    }
+    reportTaskFuture =
+        executor.scheduleAtFixedRate(reportTask, interval, interval, TimeUnit.MILLISECONDS);
   }
 
   protected static void addRequestInfo(RequestRecord request) {
     requests.add(request);
+  }
+
+  /**
+   * 设置 apm 请求的发送间隔，默认为60秒
+   * 
+   * @param intervalInSec
+   */
+  public static void setInterval(long intervalInSec) {
+    interval = intervalInSec * 1000;
+    scheduleReportTask();
   }
 
   private static void process() {

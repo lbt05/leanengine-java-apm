@@ -25,6 +25,7 @@ public class LeanCloudInterceptor implements Interceptor {
       info = new RequestRecord(request.url().getPath(), request.method(), RequestType.CLOUDAPI);
     }
     Response response = chain.proceed(request);
+    // 这里存在一个疑虑就是所有本地的网络因素造成的问题，比如超时，断网都无法被统计到
     if (needRecord) {
       info.end(response.code());
       APM.addRequestInfo(info);

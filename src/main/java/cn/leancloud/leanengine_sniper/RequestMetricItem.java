@@ -1,22 +1,27 @@
 package cn.leancloud.leanengine_sniper;
 
+import java.util.LinkedList;
+import java.util.List;
+
 class RequestMetricItem {
-  int count;
   double responseTime;
   String url;
   String method;
   int statusCode;
+  List<Double> additionRequestTime;
 
   public int getCount() {
-    return count;
-  }
-
-  public void setCount(int count) {
-    this.count = count;
+    return additionRequestTime == null ? 1 : additionRequestTime.size() + 1;
   }
 
   public double getResponseTime() {
-    return responseTime;
+    double totalResponseTime = responseTime;
+    if (additionRequestTime != null) {
+      for (Double time : additionRequestTime) {
+        totalResponseTime = totalResponseTime + time;
+      }
+    }
+    return totalResponseTime / this.getCount();
   }
 
   public void setResponseTime(double responseTime) {
@@ -48,8 +53,12 @@ class RequestMetricItem {
   }
 
   public void addRequestMetric(RequestMetricItem item) {
-    double currentResponseTimeSum = this.count * this.responseTime;
-    this.count = this.count + item.count;
-    this.responseTime = (currentResponseTimeSum + item.responseTime * item.count) / count;
+    if (additionRequestTime == null) {
+      additionRequestTime = new LinkedList<Double>();
+    }
+    additionRequestTime.add(item.responseTime);
+    if (item.additionRequestTime != null) {
+      additionRequestTime.addAll(item.additionRequestTime);
+    }
   }
 }

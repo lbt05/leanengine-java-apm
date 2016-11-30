@@ -17,7 +17,8 @@ public class CloudAPITest extends TestCase {
     AVOSCloud.setDebugLogEnabled(true);
     LeanEngine.initialize("w1L4OCqPA4W5jE2cGiNJyiru", "sI1O7g5RV3YH7ssTlJSfddko",
         "wWehHS6hkrwMhoE6xfi4jdmS");
-    APM.init("5d624dbb0fb4c886b731d21d95e69d116b5f7870", 10);
+    APM.init("5d624dbb0fb4c886b731d21d95e69d116b5f7870");
+    APM.setInterval(10);
   }
 
   public void testObjectSave() throws Exception {
