@@ -1,6 +1,7 @@
 package cn.leancloud.leanengine_sniper;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import cn.leancloud.leanengine_sniper.RequestRecord.RequestType;
 
@@ -24,12 +25,19 @@ public class LeanCloudInterceptor implements Interceptor {
     if (needRecord) {
       info = new RequestRecord(request.url().getPath(), request.method(), RequestType.CLOUDAPI);
     }
-    Response response = chain.proceed(request);
-    // 这里存在一个疑虑就是所有本地的网络因素造成的问题，比如超时，断网都无法被统计到
-    if (needRecord) {
-      info.end(response.code());
-      APM.addRequestInfo(info);
+    try {
+      Response response = chain.proceed(request);
+      if (needRecord) {
+        info.end(response.code());
+        APM.addRequestInfo(info);
+      }
+      return response;
+    } catch (IOException e) {
+      if (e instanceof SocketTimeoutException && needRecord) {
+        info.end(599);
+        APM.addRequestInfo(info);
+      }
+      throw e;
     }
-    return response;
   }
 }
