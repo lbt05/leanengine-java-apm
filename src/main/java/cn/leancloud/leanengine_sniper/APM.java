@@ -63,11 +63,6 @@ public class APM {
     requests.add(request);
   }
 
-  /**
-   * 设置 apm 请求的发送间隔，默认为60秒
-   * 
-   * @param intervalInSec
-   */
   public static void setInterval(long intervalInSec) {
     interval = intervalInSec * 1000;
     scheduleReportTask();

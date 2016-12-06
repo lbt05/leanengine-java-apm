@@ -34,7 +34,7 @@ public class LeanCloudInterceptor implements Interceptor {
       return response;
     } catch (IOException e) {
       if (e instanceof SocketTimeoutException && needRecord) {
-        info.end(599);
+        info.end(503);
         APM.addRequestInfo(info);
       }
       throw e;
