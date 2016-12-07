@@ -18,9 +18,11 @@ class RequestMetrics {
   public RequestMetrics(List<RequestRecord> records) {
     for (RequestRecord record : records) {
       RequestMetricItem item = record.metric();
+      SlowQueryRecords.addRequest(item, record.type);
       switch (record.type) {
         case REQUEST:
           addRequestMetrics(requestsMetrics, item);
+
           break;
         case CLOUDAPI:
           addRequestMetrics(cloudAPIMetrics, item);
