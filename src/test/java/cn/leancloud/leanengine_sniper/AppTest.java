@@ -1,5 +1,6 @@
 package cn.leancloud.leanengine_sniper;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,6 +75,20 @@ public class AppTest extends TestCase {
     record.end(200);
     item = record.metric();
     assertEquals(item.method + " " + "/1.1/functions/query", item.getUrl());
+  }
+
+  public void testSlowQuery() {
+    RequestRecord record = new RequestRecord("/1.1/call/query", "POST", RequestType.REQUEST);
+    record.end(200);
+    RequestMetricItem item = record.metric();
+    SlowQueryRecords.addRequest(item, RequestType.REQUEST);
+
+    record = new RequestRecord("/1.1/functions/query", "GET", RequestType.REQUEST);
+    record.end(200);
+    item = record.metric();
+    SlowQueryRecords.addRequest(item, RequestType.REQUEST);
+    List<RequestMetricItem> slowQuerys = SlowQueryRecords.getRequestSlowQuerys();
+    assertEquals(2, slowQuerys.size());
   }
 
 }
