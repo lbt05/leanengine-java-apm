@@ -52,13 +52,8 @@ class RequestRecord {
   }
 
   public RequestMetricItem metric() {
-    RequestMetricItem item = new RequestMetricItem();
-    item.setResponseTime(getResponseTime());
-    item.setCount(1);
-    item.setStatusCode(statusCode);
-    item.setMethod(method);
-    item.setUrl(method + " " + parseRequestPath(path, context));
-    return item;
+    return new RequestMetricItem(method + " " + parseRequestPath(path, context), method,
+        statusCode, 1, getResponseTime());
   }
 
 
